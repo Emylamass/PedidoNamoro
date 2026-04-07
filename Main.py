@@ -1,80 +1,126 @@
 import tkinter as tk
 import random
 from tkinter import messagebox
+import winsound
 
+# --------- MÚSICA (arquivo .wav na mesma pasta) ---------
+def tocar_musica():
+    try:
+        winsound.PlaySound("musica.wav", winsound.SND_ASYNC | winsound.SND_LOOP)
+    except:
+        pass
+
+tocar_musica()
+
+# --------- JANELA ---------
 root = tk.Tk()
 root.title('Uma pergunta importante ❤️')
 root.geometry('600x600')
-root.configure(background='#ffc8dd')
+root.configure(bg='#8b0000')
 
-# ---------- FUNÇÕES ----------
+# --------- FUNDO ---------
+canvas = tk.Canvas(root, width=600, height=600, bg='#8b0000', highlightthickness=0)
+canvas.place(x=0, y=0)
 
-def move_button_1(e):
-    x = button_nao.winfo_x()
-    y = button_nao.winfo_y()
+# corações discretos
+for x in range(0, 600, 80):
+    for y in range(0, 600, 80):
+        canvas.create_text(x, y, text="❤️", font=("Arial", 10))
 
-    # distância do mouse
+# área limpa para o título
+canvas.create_rectangle(40, 50, 560, 190, fill='#a00000', outline='')
+
+# --------- FUNÇÕES ---------
+
+def mover_botao(e):
+    x = botao_nao.winfo_x()
+    y = botao_nao.winfo_y()
+
     if abs(e.x - x) < 80 and abs(e.y - y) < 80:
-        new_x = random.randint(0, 500)
-        new_y = random.randint(200, 500)
-        button_nao.place(x=new_x, y=new_y)
+        botao_nao.place(
+            x=random.randint(0, 500),
+            y=random.randint(300, 550)
+        )
 
-def accepted():
-    for i in range(10):
-        root.after(i * 100, lambda: show_heart())
+def chuva_coracoes():
+    heart = tk.Label(root, text="❤️", bg='#8b0000', font=("Arial", 14))
+    heart.place(x=random.randint(0, 580), y=0)
 
-    messagebox.showinfo(
-        '💖',
-        'EU SABIA 😍\nAgora você oficialmente não tem mais escolha kkkkk ❤️'
+    def cair():
+        y = heart.winfo_y()
+        if y < 600:
+            heart.place(y=y + 5)
+            root.after(30, cair)
+        else:
+            heart.destroy()
+
+    cair()
+
+def final_cinematografico():
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    tela_final = tk.Label(
+        root,
+        text="Agora é oficial ❤️\nVocê não tem mais escolha 😌",
+        bg='#8b0000',
+        fg='white',
+        font=('Arial', 28, 'bold')
     )
+    tela_final.pack(expand=True)
 
-def denied():
+    for i in range(50):
+        root.after(i * 100, chuva_coracoes)
+
+def aceitou():
+    messagebox.showinfo("💖", "EU SABIA 😍❤️")
+    root.after(1000, final_cinematografico)
+
+def negou():
     frases = [
         "Tem certeza? 😢",
-        "Olha direito...",
+        "Olha direito 👀",
         "Você clicou errado 😳",
-        "Tenta de novo...",
-        "Não vale esse botão 😭"
+        "Não vale 😭",
+        "Tenta de novo..."
     ]
     messagebox.showwarning("Hmm...", random.choice(frases))
 
-def show_heart():
-    heart = tk.Label(root, text="❤️", bg='#ffc8dd', font=("Arial", 20))
-    heart.place(x=random.randint(0, 550), y=random.randint(0, 550))
-
-# ---------- INTERFACE ----------
-
+# --------- TEXTO ---------
 titulo = tk.Label(
     root,
     text='Quer namorar comigo?',
-    bg='#ffc8dd',
-    fg='#590d22',
-    font=('Arial', 26, 'bold')
+    bg='#a00000',
+    fg='white',
+    font=('Arial', 28, 'bold')
 )
-titulo.pack(pady=50)
+titulo.place(x=90, y=90)
 
-button_sim = tk.Button(
+# --------- BOTÃO SIM ---------
+botao_sim = tk.Button(
     root,
     text='SIM 😍',
-    bg='#ff8fab',
+    bg='#ff0000',
     fg='white',
-    command=accepted,
+    command=aceitou,
     font=('Arial', 16, 'bold'),
     width=10
 )
-button_sim.pack(pady=20)
+botao_sim.place(x=220, y=250)
 
-button_nao = tk.Button(
+# --------- BOTÃO NÃO ---------
+botao_nao = tk.Button(
     root,
     text='NÃO 😢',
-    bg='#ffb3c1',
-    command=denied,
+    bg='#ff4d4d',
+    command=negou,
     font=('Arial', 10, 'bold'),
     width=8
 )
-button_nao.place(x=250, y=350)
+botao_nao.place(x=250, y=400)
 
-# detectar movimento do mouse
-root.bind('<Motion>', move_button_1)
+# --------- EVENTO ---------
+root.bind('<Motion>', mover_botao)
 
+# --------- LOOP ---------
 root.mainloop()
